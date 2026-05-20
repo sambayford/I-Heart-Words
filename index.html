@@ -24,32 +24,41 @@ body{
 @keyframes confettiFall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
 @keyframes speakPulse{
   from{box-shadow:0 0 0 4px rgba(72,202,228,.25),0 16px 48px rgba(72,202,228,.2);}
-  to{box-shadow:0 0 0 14px rgba(72,202,228,.35),0 16px 48px rgba(72,202,228,.3);}
+  to{box-shadow:0 0 0 16px rgba(72,202,228,.38),0 16px 48px rgba(72,202,228,.32);}
 }
+@keyframes screenIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 
-/* ── Utility ── */
+/* ── Layout ── */
 .btn-hover{transition:transform .15s,filter .15s;cursor:pointer;}
 .btn-hover:hover{transform:scale(1.07);filter:brightness(1.08);}
 .btn-hover:active{transform:scale(0.95);}
 .screen{display:none;flex-direction:column;align-items:center;gap:20px;width:100%;max-width:440px;}
-.screen.active{display:flex;}
+.screen.active{display:flex;animation:screenIn .4s ease;}
 
-/* ── Header ── */
-#app-header{text-align:center;margin-bottom:20px;}
-#app-header h1{
-  font-size:clamp(30px,7vw,52px);color:#FF6B6B;
+/* ── App header ── */
+#appHeader{text-align:center;margin-bottom:16px;}
+#appHeader h1{
+  font-size:clamp(30px,7vw,50px);color:#FF6B6B;
   text-shadow:3px 3px 0 #FFD700;
   animation:float 3s ease-in-out infinite;
 }
-#app-header p{font-size:clamp(13px,3vw,17px);color:#999;margin-top:4px;}
+#appHeader p{font-size:clamp(13px,3vw,17px);color:#999;margin-top:4px;}
 
-/* ── Big button ── */
+/* ── Buttons ── */
 .big-btn{
   color:white;border:none;border-radius:24px;
   padding:20px 48px;font-size:clamp(18px,4vw,24px);
   font-family:inherit;box-shadow:0 8px 20px rgba(0,0,0,.18);
   width:100%;letter-spacing:1px;
 }
+.ghost-btn{
+  background:transparent;color:#aaa;
+  border:2px solid #ddd;border-radius:16px;
+  padding:10px 28px;font-size:16px;font-family:inherit;cursor:pointer;
+  transition:transform .15s,border-color .15s,color .15s;
+}
+.ghost-btn:hover{border-color:#bbb;color:#888;transform:scale(1.05);}
+.ghost-btn:active{transform:scale(.95);}
 
 /* ── Welcome card ── */
 .welcome-card{
@@ -58,38 +67,34 @@ body{
   text-align:center;width:100%;border:4px solid #FFD700;
 }
 
+/* ── Game header ── */
+.game-header{display:flex;justify-content:space-between;align-items:center;width:100%;gap:10px;}
+.score-badge{
+  background:#FFD700;border-radius:20px;padding:8px 16px;
+  font-size:17px;color:#664400;box-shadow:0 4px 12px rgba(255,215,0,.4);
+  white-space:nowrap;
+}
+.progress-bar{flex:1;background:#eee;border-radius:20px;height:14px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:20px;transition:width .5s ease;}
+.word-count-label{font-size:14px;color:#aaa;white-space:nowrap;}
+.group-label{font-size:15px;color:#999;text-align:center;width:100%;margin-top:-8px;}
+
 /* ── Word card ── */
 .word-card{
   border-radius:32px;padding:48px 32px;width:100%;
   text-align:center;border:6px solid white;
   user-select:none;cursor:pointer;
-  transition:transform .18s,box-shadow .18s;
+  transition:transform .18s,box-shadow .18s,opacity .15s;
   position:relative;
 }
 .word-card:active{transform:scale(0.97);}
 .word-card.speaking{animation:speakPulse .5s ease-in-out infinite alternate;}
+.word-card.not-ready{cursor:default;pointer-events:none;}
 .card-word{
   font-size:clamp(56px,14vw,96px);color:white;
   text-shadow:4px 4px 0 rgba(0,0,0,.15);letter-spacing:4px;line-height:1;
 }
 .tap-hint{color:rgba(255,255,255,.85);font-size:16px;margin-top:18px;}
-
-/* ── Game header ── */
-.game-header{
-  display:flex;justify-content:space-between;
-  align-items:center;width:100%;gap:10px;
-}
-.score-badge{
-  background:#FFD700;border-radius:20px;padding:8px 18px;
-  font-size:18px;color:#664400;
-  box-shadow:0 4px 12px rgba(255,215,0,.4);
-  white-space:nowrap;
-}
-.progress-bar{
-  flex:1;background:#eee;border-radius:20px;height:14px;overflow:hidden;
-}
-.progress-fill{height:100%;border-radius:20px;transition:width .5s ease;}
-.word-count{font-size:14px;color:#aaa;white-space:nowrap;}
 
 /* ── Action buttons ── */
 .action-row{
@@ -103,42 +108,48 @@ body{
   flex:1;padding:20px 10px;
   background:linear-gradient(135deg,#16a34a,#22c55e);
   color:white;border:none;border-radius:20px;
-  font-family:inherit;font-size:clamp(20px,5vw,28px);
+  font-family:inherit;font-size:clamp(22px,5vw,30px);
   cursor:pointer;box-shadow:0 6px 20px rgba(34,197,94,.35);
   transition:transform .15s,box-shadow .15s;
 }
 .btn-correct:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(34,197,94,.45);}
 .btn-correct:active{transform:scale(.95);}
-.btn-skip{
+.btn-wrong{
   flex:1;padding:20px 10px;
-  background:white;color:#6b7280;
-  border:2.5px solid #d1d5db;border-radius:20px;
-  font-family:inherit;font-size:clamp(20px,5vw,28px);
-  cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.07);
-  transition:transform .15s,box-shadow .15s,border-color .15s;
+  background:linear-gradient(135deg,#dc2626,#ef4444);
+  color:white;border:none;border-radius:20px;
+  font-family:inherit;font-size:clamp(22px,5vw,30px);
+  cursor:pointer;box-shadow:0 6px 20px rgba(220,38,38,.35);
+  transition:transform .15s,box-shadow .15s;
 }
-.btn-skip:hover{border-color:#9ca3af;transform:translateY(-3px);box-shadow:0 8px 22px rgba(0,0,0,.1);}
-.btn-skip:active{transform:scale(.95);}
+.btn-wrong:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(220,38,38,.45);}
+.btn-wrong:active{transform:scale(.95);}
 .btn-label{display:block;font-size:12px;font-weight:bold;margin-top:3px;letter-spacing:.5px;}
 
-/* ── Ghost / Home button ── */
-.ghost-btn{
-  background:transparent;color:#aaa;
-  border:2px solid #ddd;border-radius:16px;
-  padding:10px 28px;font-size:16px;font-family:inherit;
-  cursor:pointer;transition:transform .15s,border-color .15s,color .15s;
-}
-.ghost-btn:hover{border-color:#bbb;color:#888;transform:scale(1.05);}
-.ghost-btn:active{transform:scale(.95);}
-
-/* ── Results ── */
-.results-card{
-  background:white;border-radius:32px;padding:40px 32px;width:100%;
+/* ── Group complete card ── */
+.group-card{
+  background:white;border-radius:32px;padding:36px 28px;width:100%;
   box-shadow:0 16px 48px rgba(255,215,0,.3);
   border:5px solid #FFD700;text-align:center;
   animation:pop .5s ease;
 }
-.results-stars{display:flex;justify-content:center;flex-wrap:wrap;gap:4px;margin-top:16px;font-size:22px;}
+
+/* ── Results card ── */
+.results-card{
+  background:white;border-radius:32px;padding:36px 28px;width:100%;
+  box-shadow:0 16px 48px rgba(255,215,0,.3);
+  border:5px solid #FFD700;text-align:center;
+  animation:pop .5s ease;
+}
+.group-row{
+  display:flex;align-items:center;gap:8px;
+  font-size:14px;color:#888;flex-wrap:wrap;
+  justify-content:flex-start;padding:4px 0;
+}
+.group-row span.label{white-space:nowrap;color:#FF6B6B;font-size:15px;}
+
+/* ── Stars rows ── */
+.stars-row{display:flex;justify-content:center;flex-wrap:wrap;gap:4px;margin-top:12px;font-size:20px;}
 
 /* ── Effects ── */
 .floating-star{
@@ -147,13 +158,13 @@ body{
 }
 .confetti-piece{
   position:fixed;top:-20px;width:10px;height:10px;border-radius:2px;
-  animation:confettiFall 1.5s ease-in forwards;z-index:100;
+  animation:confettiFall 1.6s ease-in forwards;z-index:100;
 }
 </style>
 </head>
 <body>
 
-<div id="app-header">
+<div id="appHeader">
   <h1>I ❤ Words</h1>
   <p>Let's learn to read!</p>
 </div>
@@ -174,25 +185,40 @@ body{
 <!-- ══════════ GAME ══════════ -->
 <div id="game" class="screen">
   <div class="game-header">
-    <div class="score-badge" id="scoreBadge">⭐ 0 / 0</div>
+    <div class="score-badge" id="scoreBadge">⭐ 0 / 40</div>
     <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
-    <div class="word-count" id="wordCount">1 / 40</div>
+    <div class="word-count-label" id="wordCountLabel">1 / 10</div>
   </div>
+  <div class="group-label" id="groupLabel">Group 1 of 4</div>
 
-  <div class="word-card btn-hover" id="wordCard" onclick="speakWord()">
-    <div class="card-word" id="cardWord">—</div>
-    <div class="tap-hint" id="tapHint">👆 Tap to hear it!</div>
+  <div class="word-card not-ready" id="wordCard" onclick="speakWord()">
+    <div class="card-word" id="cardWord">...</div>
+    <div class="tap-hint" id="tapHint">🔊 Listen for instructions...</div>
   </div>
 
   <div class="action-row" id="actionRow">
     <button class="btn-correct btn-hover" onclick="answer(true)">
       ✓<span class="btn-label">Got it!</span>
     </button>
-    <button class="btn-skip btn-hover" onclick="answer(false)">
-      →<span class="btn-label">Next</span>
+    <button class="btn-wrong btn-hover" onclick="answer(false)">
+      ✗<span class="btn-label">Try again</span>
     </button>
   </div>
 
+  <button class="ghost-btn btn-hover" onclick="goHome()">🏠 Home</button>
+</div>
+
+<!-- ══════════ GROUP COMPLETE ══════════ -->
+<div id="groupComplete" class="screen">
+  <div class="group-card">
+    <div style="font-size:72px;animation:wiggle 1.5s ease-in-out infinite">🎉</div>
+    <div id="gcTitle" style="font-size:clamp(22px,5vw,32px);color:#FF6B6B;margin-top:12px"></div>
+    <div id="gcSubtitle" style="font-size:17px;color:#888;margin-top:8px"></div>
+    <div class="stars-row" id="gcStars"></div>
+  </div>
+  <button class="big-btn btn-hover" id="gcNextBtn"
+    style="background:linear-gradient(135deg,#48CAE4,#0096C7);box-shadow:0 8px 20px rgba(72,202,228,.4)"
+    onclick="nextGroup()"></button>
   <button class="ghost-btn btn-hover" onclick="goHome()">🏠 Home</button>
 </div>
 
@@ -200,9 +226,9 @@ body{
 <div id="results" class="screen">
   <div class="results-card">
     <div id="resultsEmoji" style="font-size:72px;animation:wiggle 1.5s ease-in-out infinite"></div>
-    <div id="resultsScore" style="font-size:clamp(22px,5vw,34px);color:#FF6B6B;margin-top:12px"></div>
+    <div id="resultsScore" style="font-size:clamp(22px,5vw,32px);color:#FF6B6B;margin-top:12px"></div>
     <div id="resultsMsg" style="font-size:17px;color:#888;margin-top:8px"></div>
-    <div class="results-stars" id="resultsStars"></div>
+    <div id="resultsBreakdown" style="margin-top:20px;width:100%;display:flex;flex-direction:column;gap:6px;"></div>
   </div>
   <button class="big-btn btn-hover"
     style="background:linear-gradient(135deg,#48CAE4,#0096C7);box-shadow:0 8px 20px rgba(72,202,228,.4)"
@@ -211,12 +237,12 @@ body{
 </div>
 
 <script>
-// ── Word list ──────────────────────────────────────────────────────────
-const HEART_WORDS = [
-  "the","and","a","to","in","is","it","of","you","he",
-  "she","we","are","at","be","but","do","for","go","have",
-  "here","I","like","look","me","my","no","not","on","play",
-  "said","see","so","that","they","this","up","was","what","with"
+// ── Word groups ──────────────────────────────────────────────────────
+const GROUPS = [
+  ["the","and","a","to","in","is","it","of","you","he"],
+  ["she","we","are","at","be","but","do","for","go","have"],
+  ["here","I","like","look","me","my","no","not","on","play"],
+  ["said","see","so","that","they","this","up","was","what","with"]
 ];
 
 const COLORS = [
@@ -228,124 +254,251 @@ const COLORS = [
   {bg:"#FF85A1",dark:"#CC2255"}
 ];
 
-// ── State ──────────────────────────────────────────────────────────────
-let words = [], idx = 0, score = 0, attempted = 0;
-let wordHeard = false, colorIdx = 0, gameResults = [];
+// ── State ────────────────────────────────────────────────────────────
+let groupIndex = 0;          // 0-3
+let queue = [];              // current shuffled + recycled queue
+let completedInGroup = 0;    // how many ✓ so far in this group
+let wrongInGroup = new Set();// words attempted wrong at least once this group
+let totalScore = 0;          // first-attempt ✓ across all groups
+let groupScores = [];        // array of 4 numbers (first-attempt ✓ per group)
+let groupResults = [];       // array of 4 arrays of booleans (first-attempt per word in order)
+let colorIdx = 0;
+let wordHeard = false;
+let instructionsPlaying = false;
+let currentGroupResult = []; // booleans for current group first attempts
 
-// ── Helpers ───────────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────
 function shuffle(arr){ return [...arr].sort(()=>Math.random()-.5); }
 
 function showScreen(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
 }
 
 function applyCardColor(ci){
   const c = COLORS[ci % COLORS.length];
-  const card = document.getElementById('wordCard');
+  const card = document.getElementById("wordCard");
   card.style.background = `linear-gradient(135deg,${c.bg},${c.dark})`;
-  card.style.boxShadow = `0 16px 48px ${c.bg}66`;
-  document.getElementById('progressFill').style.background =
+  card.style.boxShadow  = `0 16px 48px ${c.bg}66`;
+  document.getElementById("progressFill").style.background =
     `linear-gradient(90deg,${c.bg},${c.dark})`;
 }
 
-// ── Game flow ─────────────────────────────────────────────────────────
+// ── Start / Instructions ─────────────────────────────────────────────
 function startGame(){
-  words = shuffle(HEART_WORDS);
-  idx = 0; score = 0; attempted = 0; colorIdx = 0; gameResults = [];
-  showScreen('game');
+  groupIndex = 0;
+  totalScore = 0;
+  groupScores = [];
+  groupResults = [];
+  showScreen("game");
+  applyCardColor(0);
+  document.getElementById("cardWord").textContent = "...";
+  document.getElementById("tapHint").textContent  = "🔊 Listen for instructions...";
+  document.getElementById("wordCard").classList.add("not-ready");
+  document.getElementById("actionRow").classList.remove("visible");
+  document.getElementById("scoreBadge").textContent = "⭐ 0 / 40";
+  document.getElementById("groupLabel").textContent = "Group 1 of 4";
+  document.getElementById("wordCountLabel").textContent = "1 / 10";
+  document.getElementById("progressFill").style.width = "0%";
+  instructionsPlaying = true;
+
+  if(window.speechSynthesis){
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(
+      "Say the word, then tap the word. Tap the green tick if you got it right, or red cross if you need to try again."
+    );
+    u.lang="en-AU"; u.rate=0.85; u.pitch=1.1;
+    u.onend = ()=>{ instructionsPlaying=false; loadGroup(0); };
+    window.speechSynthesis.speak(u);
+  } else {
+    instructionsPlaying = false;
+    loadGroup(0);
+  }
+}
+
+// ── Load group ───────────────────────────────────────────────────────
+function loadGroup(gi){
+  groupIndex = gi;
+  queue = shuffle([...GROUPS[gi]]);
+  completedInGroup = 0;
+  wrongInGroup = new Set();
+  currentGroupResult = [];
+  colorIdx = gi * 2;            // different starting colour per group
+  document.getElementById("groupLabel").textContent = `Group ${gi+1} of 4`;
   loadCard();
 }
 
+// ── Load card ────────────────────────────────────────────────────────
 function loadCard(){
-  if(idx >= words.length){ showResults(); return; }
   wordHeard = false;
-  document.getElementById('cardWord').textContent = words[idx];
-  document.getElementById('tapHint').textContent = '👆 Tap to hear it!';
-  document.getElementById('wordCard').classList.remove('speaking');
-  document.getElementById('actionRow').classList.remove('visible');
+  const word = queue[0];
+  document.getElementById("cardWord").textContent = word;
+  document.getElementById("tapHint").textContent  = "👆 Tap to hear it!";
+  document.getElementById("wordCard").classList.remove("speaking","not-ready");
+  document.getElementById("actionRow").classList.remove("visible");
   applyCardColor(colorIdx);
-  updateHeader();
+
+  // header
+  document.getElementById("wordCountLabel").textContent = `${completedInGroup+1} / 10`;
+  document.getElementById("progressFill").style.width   = `${(completedInGroup/10)*100}%`;
+  document.getElementById("scoreBadge").textContent     = `⭐ ${totalScore} / 40`;
 }
 
-function updateHeader(){
-  document.getElementById('scoreBadge').textContent = `⭐ ${score} / ${attempted}`;
-  document.getElementById('wordCount').textContent = `${idx+1} / ${words.length}`;
-  document.getElementById('progressFill').style.width = `${(idx/words.length)*100}%`;
-}
-
+// ── Speak word ────────────────────────────────────────────────────────
 function speakWord(){
+  if(instructionsPlaying) return;
   if(!window.speechSynthesis) return;
   window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(words[idx]);
-  u.lang='en-AU'; u.rate=0.7; u.pitch=1.2;
-  const card = document.getElementById('wordCard');
-  card.classList.add('speaking');
+
+  const u = new SpeechSynthesisUtterance(queue[0]);
+  u.lang="en-AU"; u.rate=0.7; u.pitch=1.2;
+
+  const card = document.getElementById("wordCard");
+  card.classList.add("speaking");
   u.onend = ()=>{
-    card.classList.remove('speaking');
+    card.classList.remove("speaking");
     if(!wordHeard){
       wordHeard = true;
-      document.getElementById('tapHint').textContent = '👆 Tap to hear again';
-      document.getElementById('actionRow').classList.add('visible');
+      document.getElementById("tapHint").textContent = "👆 Tap to hear again";
+      document.getElementById("actionRow").classList.add("visible");
     }
   };
   window.speechSynthesis.speak(u);
 }
 
+// ── Answer ────────────────────────────────────────────────────────────
 function answer(correct){
   if(!wordHeard) return;
-  attempted++;
-  if(correct){ score++; spawnStars(); }
-  gameResults.push(correct);
-  colorIdx = (colorIdx+1) % COLORS.length;
-  idx++;
-  updateHeader();
-  // brief flash
-  const card = document.getElementById('wordCard');
-  card.style.transition='opacity .15s';
-  card.style.opacity='0.6';
-  setTimeout(()=>{ card.style.opacity='1'; loadCard(); }, 200);
+  const word = queue[0];
+  const firstAttempt = !wrongInGroup.has(word);
+
+  if(correct){
+    // ✓ — word is done
+    completedInGroup++;
+    if(firstAttempt){ totalScore++; currentGroupResult.push(true); }
+    else             { currentGroupResult.push(false); }
+    queue.shift();
+    spawnStars();
+  } else {
+    // ✗ — recycle to end
+    wrongInGroup.add(word);
+    if(firstAttempt){ currentGroupResult.push(false); }
+    queue.shift();
+    queue.push(word);
+  }
+
+  // brief card fade
+  const card = document.getElementById("wordCard");
+  card.style.opacity = "0.55";
+  setTimeout(()=>{
+    card.style.opacity = "1";
+    if(completedInGroup >= 10){
+      finishGroup();
+    } else {
+      colorIdx = (colorIdx+1) % COLORS.length;
+      loadCard();
+    }
+  }, 220);
+}
+
+// ── Finish group ──────────────────────────────────────────────────────
+function finishGroup(){
+  // count first-attempt correct for this group
+  const groupFirstCorrect = currentGroupResult.filter(Boolean).length;
+  groupScores.push(groupFirstCorrect);
+  groupResults.push([...currentGroupResult]);
+
+  // final progress bar fill
+  document.getElementById("progressFill").style.width = "100%";
+  document.getElementById("scoreBadge").textContent   = `⭐ ${totalScore} / 40`;
+
+  spawnConfetti();
+
+  // populate group complete screen
+  document.getElementById("gcTitle").textContent =
+    `Group ${groupIndex+1} complete! 🎉`;
+  document.getElementById("gcSubtitle").textContent =
+    `You got ${groupFirstCorrect} out of 10 on the first try!`;
+
+  const gcStars = document.getElementById("gcStars");
+  gcStars.innerHTML = "";
+  for(let i=0;i<10;i++){
+    const sp = document.createElement("span");
+    sp.textContent = (GROUPS[groupIndex].some((_,k)=> currentGroupResult[k]===true &&
+      GROUPS[groupIndex][k] && !wrongInGroup.has(GROUPS[groupIndex][i])) ? "" : "");
+    // simple: use currentGroupResult order
+    sp.textContent = (i < currentGroupResult.length && currentGroupResult[i]) ? "⭐" : "⬜";
+    gcStars.appendChild(sp);
+  }
+
+  // next button label
+  const btn = document.getElementById("gcNextBtn");
+  if(groupIndex >= 3){
+    btn.textContent = "🏆 See Results!";
+  } else {
+    btn.textContent = `Group ${groupIndex+2} →`;
+  }
+
+  showScreen("groupComplete");
+}
+
+// ── Next group button ─────────────────────────────────────────────────
+function nextGroup(){
+  if(groupIndex >= 3){
+    showResults();
+  } else {
+    showScreen("game");
+    loadGroup(groupIndex+1);
+  }
 }
 
 // ── Results ───────────────────────────────────────────────────────────
 function showResults(){
-  const pct = attempted ? (score/attempted)*100 : 0;
-  document.getElementById('resultsEmoji').textContent =
-    pct===100 ? '🏆' : pct>=75 ? '🌟' : pct>=50 ? '😊' : '💪';
-  document.getElementById('resultsScore').textContent =
-    `You got ${score} out of ${attempted}!`;
-  document.getElementById('resultsMsg').textContent =
+  const pct = totalScore / 40 * 100;
+  document.getElementById("resultsEmoji").textContent =
+    pct===100?"🏆":pct>=75?"🌟":pct>=50?"😊":"💪";
+  document.getElementById("resultsScore").textContent =
+    `You got ${totalScore} out of 40!`;
+  document.getElementById("resultsMsg").textContent =
     pct===100 ? "PERFECT! You're a superstar! 🌈" :
-    pct>=75  ? "Amazing work! Keep it up! 🚀" :
-    pct>=50  ? "Great try! Practice makes perfect! 🎯" :
-               "Nice try! Let's keep practising! 📚";
+    pct>=75   ? "Amazing work! Keep it up! 🚀" :
+    pct>=50   ? "Great try! Practice makes perfect! 🎯" :
+                "Nice try! Let's keep practising! 📚";
 
-  // 20-icon summary (each icon = 2 words)
-  const starsEl = document.getElementById('resultsStars');
-  starsEl.innerHTML = '';
-  for(let j=0;j<20;j++){
-    const a = gameResults[j*2], b = gameResults[j*2+1];
-    const sp = document.createElement('span');
-    sp.textContent = (a&&b) ? '⭐' : (a||b) ? '✨' : '⬜';
-    starsEl.appendChild(sp);
-  }
-  if(pct>=60) spawnConfetti();
-  showScreen('results');
+  const bd = document.getElementById("resultsBreakdown");
+  bd.innerHTML="";
+  groupResults.forEach((res,gi)=>{
+    const row = document.createElement("div");
+    row.className="group-row";
+    const lbl=document.createElement("span");
+    lbl.className="label";
+    lbl.textContent=`Group ${gi+1}:`;
+    row.appendChild(lbl);
+    for(let i=0;i<10;i++){
+      const sp=document.createElement("span");
+      sp.style.fontSize="18px";
+      sp.textContent=(i<res.length && res[i])?"⭐":"⬜";
+      row.appendChild(sp);
+    }
+    bd.appendChild(row);
+  });
+
+  spawnConfetti();
+  showScreen("results");
 }
 
 // ── Home ──────────────────────────────────────────────────────────────
 function goHome(){
   window.speechSynthesis && window.speechSynthesis.cancel();
-  showScreen('home');
+  showScreen("home");
 }
 
 // ── Effects ───────────────────────────────────────────────────────────
 function spawnStars(){
   for(let i=0;i<5;i++){
     setTimeout(()=>{
-      const s=document.createElement('div');
-      s.className='floating-star';
-      s.textContent='⭐';
+      const s=document.createElement("div");
+      s.className="floating-star"; s.textContent="⭐";
       s.style.left=`${20+Math.random()*60}%`;
       s.style.top=`${20+Math.random()*40}%`;
       document.body.appendChild(s);
@@ -356,18 +509,19 @@ function spawnStars(){
 
 function spawnConfetti(){
   const colors=COLORS.map(c=>c.bg);
-  for(let i=0;i<36;i++){
+  for(let i=0;i<40;i++){
     setTimeout(()=>{
-      const p=document.createElement('div');
-      p.className='confetti-piece';
+      const p=document.createElement("div");
+      p.className="confetti-piece";
       p.style.left=`${Math.random()*100}%`;
       p.style.background=colors[i%colors.length];
       p.style.animationDelay=`${Math.random()*.5}s`;
       const sz=`${8+Math.random()*10}px`;
       p.style.width=sz; p.style.height=sz;
+      p.style.borderRadius=Math.random()>.5?"50%":"2px";
       document.body.appendChild(p);
-      setTimeout(()=>p.remove(),2200);
-    },i*40);
+      setTimeout(()=>p.remove(),2400);
+    },i*35);
   }
 }
 </script>
