@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Sight Words!</title>
+<title>I Heart Words!</title>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet" />
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -59,7 +59,7 @@
 <body>
 
 <div id="header">
-  <h1>📚 Sight Words! 🌟</h1>
+  <h1>📚 I Heart Words! 🌟</h1>
   <p>Let's learn to read!</p>
 </div>
 
@@ -68,7 +68,7 @@
   <div class="welcome-card">
     <div style="font-size:80px;animation:wiggle 2s ease-in-out infinite">🦁</div>
     <div style="font-size:22px;color:#444;margin-top:12px;line-height:1.4">
-      Hi there! Ready to learn <span style="color:#FF6B6B">sight words</span>?
+      Hi there! Ready to learn <span style="color:#FF6B6B">heart words</span>?
     </div>
   </div>
   <button class="big-btn btn-hover" style="background:linear-gradient(135deg,#FF6B6B,#FF8E53);box-shadow:0 8px 20px rgba(255,107,107,0.4)" onclick="showFlashcards()">📖 Flash Cards</button>
@@ -121,7 +121,7 @@
 </div>
 
 <script>
-const SIGHT_WORDS = [
+const HEART_WORDS = [
   {word:"the",emoji:"📖"},{word:"and",emoji:"🤝"},{word:"a",emoji:"🍎"},
   {word:"to",emoji:"➡️"},{word:"in",emoji:"📦"},{word:"is",emoji:"⭐"},
   {word:"it",emoji:"🎯"},{word:"of",emoji:"🧩"},{word:"you",emoji:"👆"},
@@ -166,16 +166,16 @@ function applyColor(el, ci) {
 function showFlashcards() {
   renderCard();
   renderDots();
-  document.getElementById('word-count').textContent = `${SIGHT_WORDS.length} words to learn 🎉`;
+  document.getElementById('word-count').textContent = `${HEART_WORDS.length} words to learn 🎉`;
   showScreen('flashcard');
 }
 
 function renderCard() {
-  const w = SIGHT_WORDS[cardIndex];
+  const w = HEART_WORDS[cardIndex];
   const c = COLORS[colorIndex % COLORS.length];
   document.getElementById('card-emoji').textContent = w.emoji;
   document.getElementById('card-word').textContent = w.word;
-  document.getElementById('card-counter').textContent = `Card ${cardIndex+1} of ${SIGHT_WORDS.length}`;
+  document.getElementById('card-counter').textContent = `Card ${cardIndex+1} of ${HEART_WORDS.length}`;
   applyColor(document.getElementById('flash-card'), colorIndex);
   document.getElementById('next-btn').style.background = `linear-gradient(135deg,${c.bg},${c.dark})`;
   document.getElementById('next-btn').style.color = 'white';
@@ -188,7 +188,7 @@ function renderCard() {
 function renderDots() {
   const dots = document.getElementById('dots');
   dots.innerHTML = '';
-  SIGHT_WORDS.forEach((_, i) => {
+  HEART_WORDS.forEach((_, i) => {
     const d = document.createElement('div');
     d.className = 'dot';
     d.onclick = () => { cardIndex = i; colorIndex = i % COLORS.length; renderCard(); };
@@ -197,21 +197,21 @@ function renderDots() {
 }
 
 function nextCard() {
-  cardIndex = (cardIndex + 1) % SIGHT_WORDS.length;
+  cardIndex = (cardIndex + 1) % HEART_WORDS.length;
   colorIndex = (colorIndex + 1) % COLORS.length;
   animateBounce('flash-card');
   renderCard();
 }
 
 function prevCard() {
-  cardIndex = (cardIndex - 1 + SIGHT_WORDS.length) % SIGHT_WORDS.length;
+  cardIndex = (cardIndex - 1 + HEART_WORDS.length) % HEART_WORDS.length;
   colorIndex = (colorIndex - 1 + COLORS.length) % COLORS.length;
   renderCard();
 }
 
 function speakWord() {
   if ('speechSynthesis' in window) {
-    const u = new SpeechSynthesisUtterance(SIGHT_WORDS[cardIndex].word);
+    const u = new SpeechSynthesisUtterance(HEART_WORDS[cardIndex].word);
     u.rate = 0.6; u.pitch = 1.2;
     window.speechSynthesis.speak(u);
   }
@@ -219,7 +219,7 @@ function speakWord() {
 
 // ---- QUIZ ----
 function startQuiz() {
-  quizWords = shuffle(SIGHT_WORDS).slice(0, 8);
+  quizWords = shuffle(HEART_WORDS).slice(0, 8);
   quizIndex = 0; score = 0; selected = null;
   colorIndex = 0;
   updateScoreBadge();
@@ -239,7 +239,7 @@ function renderQuiz() {
   document.getElementById('progress-fill').style.width = `${(quizIndex / quizWords.length) * 100}%`;
   document.getElementById('progress-fill').style.background = `linear-gradient(90deg,${c.bg},${c.dark})`;
 
-  const others = shuffle(SIGHT_WORDS.filter(x => x.word !== w.word)).slice(0, 3);
+  const others = shuffle(HEART_WORDS.filter(x => x.word !== w.word)).slice(0, 3);
   quizChoices = shuffle([w, ...others]);
 
   const container = document.getElementById('choices');
@@ -352,7 +352,7 @@ function spawnConfetti() {
 }
 
 // Init
-document.getElementById('word-count').textContent = `${SIGHT_WORDS.length} words to learn 🎉`;
+document.getElementById('word-count').textContent = `${HEART_WORDS.length} words to learn 🎉`;
 </script>
 </body>
 </html>
