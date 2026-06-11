@@ -172,14 +172,12 @@ body{
 <!-- ══════════ HOME ══════════ -->
 <div id="home" class="screen active">
   <div class="welcome-card">
-    <div style="font-size:80px;animation:wiggle 2s ease-in-out infinite">🦁</div>
-    <div style="font-size:20px;color:#444;margin-top:14px;line-height:1.5">
-      Hi there! Ready to practise your <span style="color:#FF6B6B">heart words</span>?
+    <div style="font-size:72px;animation:wiggle 2s ease-in-out infinite">🦁</div>
+    <div style="font-size:20px;color:#444;margin-top:12px;line-height:1.5">
+      Hi there! Pick a group to practise!
     </div>
   </div>
-  <button class="big-btn btn-hover"
-    style="background:linear-gradient(135deg,#FF6B6B,#FF8E53);box-shadow:0 8px 20px rgba(255,107,107,.4)"
-    onclick="startGame()">▶ Start</button>
+  <div id="groupButtons" style="display:flex;flex-direction:column;gap:14px;width:100%;"></div>
 </div>
 
 <!-- ══════════ GAME ══════════ -->
@@ -267,6 +265,43 @@ let wordHeard = false;
 let instructionsPlaying = false;
 let currentGroupResult = []; // booleans for current group first attempts
 
+// ── Completed groups (localStorage) ──────────────────────────────────
+function getCompleted(gi){ try{ return localStorage.getItem('hw_done_'+gi)==='1'; }catch(e){ return false; } }
+function setCompleted(gi){ try{ localStorage.setItem('hw_done_'+gi,'1'); }catch(e){} }
+
+// ── Render home group buttons ─────────────────────────────────────────
+const GROUP_NAMES = ["Group 1","Group 2","Group 3","Group 4"];
+const GROUP_COLORS = [
+  {bg:"linear-gradient(135deg,#FF6B6B,#CC3333)",shadow:"rgba(255,107,107,.4)"},
+  {bg:"linear-gradient(135deg,#FFB347,#CC7700)",shadow:"rgba(255,179,71,.4)"},
+  {bg:"linear-gradient(135deg,#48CAE4,#0077A8)",shadow:"rgba(72,202,228,.4)"},
+  {bg:"linear-gradient(135deg,#95D44A,#5A9E00)",shadow:"rgba(149,212,74,.4)"},
+];
+
+function renderHomeButtons(){
+  const container = document.getElementById('groupButtons');
+  container.innerHTML = '';
+  GROUPS.forEach((words, gi) => {
+    const done = getCompleted(gi);
+    const btn = document.createElement('button');
+    btn.className = 'big-btn btn-hover';
+    btn.style.background = GROUP_COLORS[gi].bg;
+    btn.style.boxShadow = `0 8px 20px ${GROUP_COLORS[gi].shadow}`;
+    btn.style.display = 'flex';
+    btn.style.alignItems = 'center';
+    btn.style.justifyContent = 'space-between';
+    btn.style.padding = '18px 28px';
+    btn.style.position = 'relative';
+    btn.innerHTML = `
+      <span style="font-size:clamp(16px,4vw,22px)">${GROUP_NAMES[gi]}</span>
+      <span style="font-size:13px;opacity:0.85;flex:1;text-align:center">${words.join(', ')}</span>
+      <span style="font-size:28px;min-width:36px;text-align:right">${done ? '✅' : '▶'}</span>
+    `;
+    btn.onclick = () => startGame(gi);
+    container.appendChild(btn);
+  });
+}
+
 // ── Helpers ──────────────────────────────────────────────────────────
 function shuffle(arr){ return [...arr].sort(()=>Math.random()-.5); }
 
@@ -285,19 +320,19 @@ function applyCardColor(ci){
 }
 
 // ── Start / Instructions ─────────────────────────────────────────────
-function startGame(){
-  groupIndex = 0;
+function startGame(gi=0){
+  groupIndex = gi;
   totalScore = 0;
   groupScores = [];
   groupResults = [];
   showScreen("game");
-  applyCardColor(0);
+  applyCardColor(gi);
   document.getElementById("cardWord").textContent = "...";
   document.getElementById("tapHint").textContent  = "🔊 Listen for instructions...";
   document.getElementById("wordCard").classList.add("not-ready");
   document.getElementById("actionRow").classList.remove("visible");
-  document.getElementById("scoreBadge").textContent = "⭐ 0 / 40";
-  document.getElementById("groupLabel").textContent = "Group 1 of 4";
+  document.getElementById("scoreBadge").textContent = "⭐ 0";
+  document.getElementById("groupLabel").textContent = `Group ${gi+1} of ${GROUPS.length}`;
   document.getElementById("wordCountLabel").textContent = "1 / 10";
   document.getElementById("progressFill").style.width = "0%";
   instructionsPlaying = true;
@@ -308,11 +343,11 @@ function startGame(){
       "Say the word, then tap the word. Tap the green tick if you got it right, or red cross if you need to try again."
     );
     u.lang="en-AU"; u.rate=0.85; u.pitch=1.1;
-    u.onend = ()=>{ instructionsPlaying=false; loadGroup(0); };
+    u.onend = ()=>{ instructionsPlaying=false; loadGroup(gi); };
     window.speechSynthesis.speak(u);
   } else {
     instructionsPlaying = false;
-    loadGroup(0);
+    loadGroup(gi);
   }
 }
 
@@ -413,6 +448,7 @@ function finishGroup(){
   document.getElementById("scoreBadge").textContent   = `⭐ ${totalScore} / 40`;
 
   spawnConfetti();
+  if(groupFirstCorrect === 10) setCompleted(groupIndex);
 
   // populate group complete screen
   document.getElementById("gcTitle").textContent =
@@ -433,23 +469,15 @@ function finishGroup(){
 
   // next button label
   const btn = document.getElementById("gcNextBtn");
-  if(groupIndex >= 3){
-    btn.textContent = "🏆 See Results!";
-  } else {
-    btn.textContent = `Group ${groupIndex+2} →`;
-  }
+  btn.textContent = "🏠 Back to Groups";
 
   showScreen("groupComplete");
 }
 
 // ── Next group button ─────────────────────────────────────────────────
 function nextGroup(){
-  if(groupIndex >= 3){
-    showResults();
-  } else {
-    showScreen("game");
-    loadGroup(groupIndex+1);
-  }
+  renderHomeButtons();
+  showScreen("home");
 }
 
 // ── Results ───────────────────────────────────────────────────────────
@@ -490,6 +518,7 @@ function showResults(){
 // ── Home ──────────────────────────────────────────────────────────────
 function goHome(){
   window.speechSynthesis && window.speechSynthesis.cancel();
+  renderHomeButtons();
   showScreen("home");
 }
 
@@ -524,6 +553,7 @@ function spawnConfetti(){
     },i*35);
   }
 }
+renderHomeButtons();
 </script>
 </body>
 </html>
