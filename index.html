@@ -152,6 +152,15 @@ body{
 .stars-row{display:flex;justify-content:center;flex-wrap:wrap;gap:4px;margin-top:12px;font-size:20px;}
 
 /* ── Effects ── */
+.dot-indicator{
+  flex:1;min-width:0;aspect-ratio:1/1;border-radius:50%;
+  background:#ddd;display:flex;align-items:center;justify-content:center;
+  font-size:clamp(12px,4vw,18px);transition:background .3s,transform .3s;
+}
+.dot-indicator.correct{background:#22c55e;transform:scale(1.15);}
+.dot-indicator.wrong{background:#ef4444;transform:scale(1.15);}
+@keyframes dotPop{0%{transform:scale(0.5)}70%{transform:scale(1.3)}100%{transform:scale(1.15)}}
+.dot-indicator.correct,.dot-indicator.wrong{animation:dotPop .3s ease;}
 .floating-star{
   position:fixed;font-size:24px;pointer-events:none;
   animation:floatStar 1.5s ease-out forwards;z-index:200;
@@ -182,12 +191,8 @@ body{
 
 <!-- ══════════ GAME ══════════ -->
 <div id="game" class="screen">
-  <div class="game-header">
-    <div class="score-badge" id="scoreBadge">⭐ 0 / 40</div>
-    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
-    <div class="word-count-label" id="wordCountLabel">1 / 10</div>
-  </div>
   <div class="group-label" id="groupLabel">Group 1 of 4</div>
+  <div id="dotRow" style="display:flex;gap:6px;width:100%;"></div>
 
   <div class="word-card not-ready" id="wordCard" onclick="speakWord()">
     <div class="card-word" id="cardWord">...</div>
@@ -203,7 +208,11 @@ body{
     </button>
   </div>
 
-  <button class="ghost-btn btn-hover" onclick="goHome()">🏠 Home</button>
+  <button id="gameHomeBtn" class="ghost-btn btn-hover" onclick="goHome()">🏠 Home</button>
+  <button id="gameDoneBtn" class="big-btn btn-hover" onclick="goHome()"
+    style="display:none;align-items:center;justify-content:center;gap:12px;background:linear-gradient(135deg,#FF6B6B,#FF8E53);box-shadow:0 8px 24px rgba(255,107,107,.45);font-size:clamp(22px,5vw,30px)">
+    🏠 Back to Groups
+  </button>
 </div>
 
 <!-- ══════════ GROUP COMPLETE ══════════ -->
@@ -214,9 +223,6 @@ body{
     <div id="gcSubtitle" style="font-size:17px;color:#888;margin-top:8px"></div>
     <div class="stars-row" id="gcStars"></div>
   </div>
-  <button class="big-btn btn-hover" id="gcNextBtn"
-    style="background:linear-gradient(135deg,#48CAE4,#0096C7);box-shadow:0 8px 20px rgba(72,202,228,.4)"
-    onclick="nextGroup()"></button>
   <button class="ghost-btn btn-hover" onclick="goHome()">🏠 Home</button>
 </div>
 
@@ -305,6 +311,33 @@ function renderHomeButtons(){
 // ── Helpers ──────────────────────────────────────────────────────────
 function shuffle(arr){ return [...arr].sort(()=>Math.random()-.5); }
 
+// ── Dot indicators ────────────────────────────────────────────────────
+function initDots(){
+  const row = document.getElementById('dotRow');
+  row.innerHTML = '';
+  for(let i=0;i<10;i++){
+    const d = document.createElement('div');
+    d.className = 'dot-indicator';
+    d.id = `dot_${i}`;
+    row.appendChild(d);
+  }
+}
+
+function updateDots(){
+  // completedInGroup = how many done; currentGroupResult = true/false per word
+  for(let i=0;i<10;i++){
+    const d = document.getElementById(`dot_${i}`);
+    if(!d) continue;
+    if(i < currentGroupResult.length){
+      d.className = 'dot-indicator ' + (currentGroupResult[i] ? 'correct' : 'wrong');
+      d.textContent = currentGroupResult[i] ? '✓' : '✗';
+    } else {
+      d.className = 'dot-indicator';
+      d.textContent = '';
+    }
+  }
+}
+
 function showScreen(id){
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
@@ -315,8 +348,6 @@ function applyCardColor(ci){
   const card = document.getElementById("wordCard");
   card.style.background = `linear-gradient(135deg,${c.bg},${c.dark})`;
   card.style.boxShadow  = `0 16px 48px ${c.bg}66`;
-  document.getElementById("progressFill").style.background =
-    `linear-gradient(90deg,${c.bg},${c.dark})`;
 }
 
 // ── Start / Instructions ─────────────────────────────────────────────
@@ -330,11 +361,14 @@ function startGame(gi=0){
   document.getElementById("cardWord").textContent = "...";
   document.getElementById("tapHint").textContent  = "🔊 Listen for instructions...";
   document.getElementById("wordCard").classList.add("not-ready");
+  document.getElementById("wordCard").style.display = "";
   document.getElementById("actionRow").classList.remove("visible");
-  document.getElementById("scoreBadge").textContent = "⭐ 0";
+  document.getElementById("actionRow").style.display = "";
+  document.getElementById("gameHomeBtn").style.display = "";
+  document.getElementById("gameDoneBtn").style.display = "none";
   document.getElementById("groupLabel").textContent = `Group ${gi+1} of ${GROUPS.length}`;
-  document.getElementById("wordCountLabel").textContent = "1 / 10";
-  document.getElementById("progressFill").style.width = "0%";
+  
+  initDots();
   instructionsPlaying = true;
 
   if(window.speechSynthesis){
@@ -374,9 +408,8 @@ function loadCard(){
   applyCardColor(colorIdx);
 
   // header
-  document.getElementById("wordCountLabel").textContent = `${completedInGroup+1} / 10`;
-  document.getElementById("progressFill").style.width   = `${(completedInGroup/10)*100}%`;
-  document.getElementById("scoreBadge").textContent     = `⭐ ${totalScore} / 40`;
+  
+  updateDots();
 }
 
 // ── Speak word ────────────────────────────────────────────────────────
@@ -408,26 +441,31 @@ function answer(correct){
   const firstAttempt = !wrongInGroup.has(word);
 
   if(correct){
-    // ✓ — word is done
-    completedInGroup++;
     if(firstAttempt){ totalScore++; currentGroupResult.push(true); }
     else             { currentGroupResult.push(false); }
     queue.shift();
+    updateDots();
     spawnStars();
   } else {
-    // ✗ — recycle to end
     wrongInGroup.add(word);
-    if(firstAttempt){ currentGroupResult.push(false); }
+    if(firstAttempt){ currentGroupResult.push(false); updateDots(); }
     queue.shift();
-    queue.push(word);
+    // no recycling — word is gone
   }
+
+  completedInGroup++;
 
   // brief card fade
   const card = document.getElementById("wordCard");
   card.style.opacity = "0.55";
   setTimeout(()=>{
     card.style.opacity = "1";
-    if(completedInGroup >= 10){
+    if(queue.length === 0){
+      // all words attempted — hide card/buttons, show home
+      document.getElementById("wordCard").style.display = "none";
+      document.getElementById("actionRow").style.display = "none";
+      document.getElementById("gameHomeBtn").style.display = "none";
+      document.getElementById("gameDoneBtn").style.display = "flex";
       finishGroup();
     } else {
       colorIdx = (colorIdx+1) % COLORS.length;
@@ -444,32 +482,27 @@ function finishGroup(){
   groupResults.push([...currentGroupResult]);
 
   // final progress bar fill
-  document.getElementById("progressFill").style.width = "100%";
-  document.getElementById("scoreBadge").textContent   = `⭐ ${totalScore} / 40`;
+  updateDots();
 
-  spawnConfetti();
-  if(groupFirstCorrect === 10) setCompleted(groupIndex);
+  const allPerfect = wrongInGroup.size === 0;
+  if(allPerfect){ spawnConfetti(); setCompleted(groupIndex); }
 
   // populate group complete screen
-  document.getElementById("gcTitle").textContent =
-    `Group ${groupIndex+1} complete! 🎉`;
+  document.getElementById("gcTitle").textContent = allPerfect
+    ? `Group ${groupIndex+1} complete! 🎉`
+    : `Group ${groupIndex+1} done — keep practising! 💪`;
   document.getElementById("gcSubtitle").textContent =
-    `You got ${groupFirstCorrect} out of 10 on the first try!`;
+    `${groupFirstCorrect} out of 10 correct`;
 
   const gcStars = document.getElementById("gcStars");
   gcStars.innerHTML = "";
   for(let i=0;i<10;i++){
     const sp = document.createElement("span");
-    sp.textContent = (GROUPS[groupIndex].some((_,k)=> currentGroupResult[k]===true &&
-      GROUPS[groupIndex][k] && !wrongInGroup.has(GROUPS[groupIndex][i])) ? "" : "");
-    // simple: use currentGroupResult order
-    sp.textContent = (i < currentGroupResult.length && currentGroupResult[i]) ? "⭐" : "⬜";
+    const correct = i < currentGroupResult.length && currentGroupResult[i];
+    sp.textContent = correct ? "✅" : "❌";
+    sp.style.fontSize = "clamp(20px,6vw,28px)";
     gcStars.appendChild(sp);
   }
-
-  // next button label
-  const btn = document.getElementById("gcNextBtn");
-  btn.textContent = "🏠 Back to Groups";
 
   showScreen("groupComplete");
 }
